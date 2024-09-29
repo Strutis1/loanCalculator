@@ -6,6 +6,8 @@ import data.Mokejimas;
 import data.MokejimoLentele;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.NumberAxis;
 import javafx.scene.control.*;
 
 public class CalcController {
@@ -52,6 +54,16 @@ public class CalcController {
     @FXML
     private TextField timeYears;
 
+    @FXML
+    private CategoryAxis monthAxis;
+
+    @FXML
+    private NumberAxis paymentAxis;
+
+    @FXML
+    private CheckBox showGraphs;
+
+
     private MokejimoLentele mokejimoLentele;
     private Linear linear;
     private Annuity annuity;
@@ -77,10 +89,9 @@ public class CalcController {
 
     @FXML
     private void checkInput(ActionEvent actionEvent) {
-        if (isPosDouble(loanAmount.getText()) &&
-                isPosInt(timeMonths.getText()) &&
-                isPosInt(timeYears.getText()) &&
-                (anuitetoButton.isSelected() || linijinisButton.isSelected())) {
+        if (isPosDouble(loanAmount) && isPosInt(timeMonths) && isPosInt(timeMonths) &&
+                (anuitetoButton.isSelected() || linijinisButton.isSelected()) &&
+                Integer.parseInt(timeYears.getText()) != 0 && Integer.parseInt(timeMonths.getText()) != 0) {
             handleCalculate();
         }
     }
@@ -127,20 +138,42 @@ public class CalcController {
     }
 
 
-    private boolean isPosInt(String text) {
+    private boolean isPosInt(TextField textField) {
         try {
-            int value = Integer.parseInt(text);
-            return value >= 0;
+            int value;
+            if (textField.getText() == null || textField.getText().trim().isEmpty()) {
+                value = 0;
+            } else{
+                value = Integer.parseInt(textField.getText());
+            }
+
+            if(value >= 0) {
+                textField.setStyle("-fx-border-color: black");
+                return true;
+            }
+            return false;
         } catch (NumberFormatException e) {
+            textField.setStyle("-fx-border-color: red");
             return false;
         }
     }
 
-    private boolean isPosDouble(String text) {
+    private boolean isPosDouble(TextField textField) {
         try {
-            double value = Double.parseDouble(text);
-            return value > 0;
+            double value;
+            if(textField.getText() == null || textField.getText().trim().isEmpty()) {
+                value = 0;
+            }
+            else{
+                value = Double.parseDouble(textField.getText());
+            }
+            if(value >= 0) {
+                textField.setStyle("-fx-border-color: black");
+                return true;
+            }
+            return false;
         } catch (NumberFormatException e) {
+            textField.setStyle("-fx-border-color: red");
             return false;
         }
     }

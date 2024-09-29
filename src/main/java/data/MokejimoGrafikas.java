@@ -1,4 +1,5 @@
-package data;
-
-public class MokejimoGrafikas {
-}
+//package data;
+//
+//public class MokejimoGrafikas {
+//    private
+//}
