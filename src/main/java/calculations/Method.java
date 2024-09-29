@@ -16,6 +16,8 @@ public abstract class Method {
 
     public abstract double calculateInterestPayment(int month);
 
+    public abstract double calculatePrincipalPayment(int month);
+
     public double getTotalAmount() {
         return totalAmount;
     }

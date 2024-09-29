@@ -1,34 +1,42 @@
 package calculations;
 
-public class Annuity extends Method{
-    Annuity(double totalAmount, int totalMonths, double annualInterestRate){
+public class Annuity extends Method {
+    private final double monthlyPayment;
+
+    public Annuity(double totalAmount, int totalMonths, double annualInterestRate) {
         super(totalAmount, totalMonths, annualInterestRate);
+        this.monthlyPayment = calculateMonthlyPayment();
     }
 
     @Override
     public double calculateMonthlyPayment() {
         double monthlyRate = getMonthlyInterestRate();
-        return (totalAmount * monthlyRate * Math.pow((1 + monthlyRate),totalAmount))
-                / Math.pow((1 + monthlyRate), totalMonths) - 1;
+        return totalAmount * (monthlyRate * Math.pow(1 + monthlyRate, totalMonths))
+                / (Math.pow(1 + monthlyRate, totalMonths) - 1);
     }
 
     @Override
     public double calculateInterestPayment(int month) {
+        double remainingAmount = getRemainingAmount(month - 1);
         double monthlyRate = getMonthlyInterestRate();
-        double remainingAmount = totalAmount * (Math.pow(1 + monthlyRate, totalMonths - month) - 1) /
-                (Math.pow(1 + monthlyRate, totalMonths) - 1);
         return remainingAmount * monthlyRate;
     }
 
     @Override
     public double getRemainingAmount(int month) {
-        double interestRatePerMonth = getMonthlyInterestRate();
-        double monthlyPayment = calculateMonthlyPayment();
-
-        double remainingAmount = totalAmount * Math.pow(1 + interestRatePerMonth, month)
-                - (monthlyPayment * (Math.pow(1 + interestRatePerMonth, month) - 1)) / interestRatePerMonth;
-        return remainingAmount;
+        double monthlyRate = getMonthlyInterestRate();
+        return totalAmount * (Math.pow(1 + monthlyRate, totalMonths) - Math.pow(1 + monthlyRate, month))
+                / (Math.pow(1 + monthlyRate, totalMonths) - 1);
     }
 
+    @Override
+    public double calculatePrincipalPayment(int month) {
+        double totalPayment = calculateMonthlyPayment();
+        double interestPayment = calculateInterestPayment(month);
+        return monthlyPayment - interestPayment;
+    }
 
+    public double getMonthlyPayment(){
+        return monthlyPayment;
+    }
 }

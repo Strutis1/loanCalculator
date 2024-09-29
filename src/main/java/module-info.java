@@ -7,5 +7,6 @@ module com.crew.mif.loancalculator {
     opens com.crew.mif.loancalculator to javafx.fxml;
     exports com.crew.mif.loancalculator;
     exports calculations;
+    exports data;
     opens calculations to javafx.fxml;
 }

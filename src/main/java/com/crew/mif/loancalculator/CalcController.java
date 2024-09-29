@@ -3,12 +3,10 @@ package com.crew.mif.loancalculator;
 import calculations.Annuity;
 import calculations.Linear;
 import data.Mokejimas;
+import data.MokejimoLentele;
 import javafx.event.ActionEvent;
-
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.AnchorPane;
 
 public class CalcController {
 
@@ -30,14 +28,11 @@ public class CalcController {
     @FXML
     private TableColumn<Mokejimas, Double> likusiSuma;
 
-
     @FXML
     private RadioButton anuitetoButton;
 
-    private Annuity annuity;
-
     @FXML
-    private AnchorPane base;
+    private RadioButton linijinisButton;
 
     @FXML
     private Button calculateButton;
@@ -45,23 +40,11 @@ public class CalcController {
     @FXML
     private Button clearButton;
 
-
     @FXML
     private TextField interestRate;
 
     @FXML
-    private RadioButton linijinisButton;
-
-    private Linear linear;
-
-    @FXML
     private TextField loanAmount;
-
-    @FXML
-    private ToggleGroup paymentMethodGroup;
-
-    @FXML
-    private CheckBox showGraphs;
 
     @FXML
     private TextField timeMonths;
@@ -69,36 +52,35 @@ public class CalcController {
     @FXML
     private TextField timeYears;
 
-
-
-
-
-
-    private void handleClear(ActionEvent event) {
-        loanAmount.clear();
-        timeYears.clear();
-        timeMonths.clear();
-        anuitetoButton.setSelected(false);
-        linijinisButton.setSelected(false);
-        dataTable.getItems().clear();
-    }
+    private MokejimoLentele mokejimoLentele;
+    private Linear linear;
+    private Annuity annuity;
 
     public void initialize() {
-        menuo.setCellValueFactory(new PropertyValueFactory<>("Mėnuo"));
-        menesineImoka.setCellValueFactory(new PropertyValueFactory<>("Menesinė Įmoka"));
-        pagrindineDalis.setCellValueFactory(new PropertyValueFactory<>("Pagrindinė dalis"));
-        palukanuDalis.setCellValueFactory(new PropertyValueFactory<>("Palūkanų dalis"));
-        likusiSuma.setCellValueFactory(new PropertyValueFactory<>("Likusi suma"));
+        mokejimoLentele = new MokejimoLentele(dataTable, menuo, menesineImoka, pagrindineDalis, palukanuDalis, likusiSuma);
+
         clearButton.setOnAction(this::handleClear);
         calculateButton.setOnAction(this::checkInput);
     }
 
-    private void checkInput(ActionEvent actionEvent) {
-        if (isPosDouble(loanAmount, loanAmount.getText()) &&
-                isPosInt(timeMonths, timeMonths.getText()) &&
-                isPosInt(timeYears, timeYears.getText()) &&
-                (anuitetoButton.isSelected() || linijinisButton.isSelected())) {
+    @FXML
+    private void handleClear(ActionEvent event) {
+        loanAmount.clear();
+        timeYears.clear();
+        timeMonths.clear();
+        interestRate.clear();
+        anuitetoButton.setSelected(false);
+        linijinisButton.setSelected(false);
+        mokejimoLentele.clearTable();
+        mokejimoLentele.setVisible(false);
+    }
 
+    @FXML
+    private void checkInput(ActionEvent actionEvent) {
+        if (isPosDouble(loanAmount.getText()) &&
+                isPosInt(timeMonths.getText()) &&
+                isPosInt(timeYears.getText()) &&
+                (anuitetoButton.isSelected() || linijinisButton.isSelected())) {
             handleCalculate();
         }
     }
@@ -109,60 +91,57 @@ public class CalcController {
             int totalMonths = Integer.parseInt(timeYears.getText()) * 12 + Integer.parseInt(timeMonths.getText());
             double annualInterestRate = Double.parseDouble(interestRate.getText());
 
-
-
-            if(linijinisButton.isSelected()) {
+            if (linijinisButton.isSelected()) {
                 linear = new Linear(totalAmount, totalMonths, annualInterestRate);
+                mokejimoLentele.clearTable();
 
+                double pagrindineDalisValue = linear.calculateMonthlyPayment();
+                for (int month = 1; month <= totalMonths; month++) {
+                    double palukanuDalisValue = linear.calculateInterestPayment(month);
+                    double menesineImokaValue = linear.calculatePrincipalPayment(month);
+                    double likusiSumaValue = linear.getRemainingAmount(month);
+
+                    Mokejimas payment = new Mokejimas(month, menesineImokaValue, pagrindineDalisValue, palukanuDalisValue, likusiSumaValue);
+                    mokejimoLentele.addPayment(payment);
+                }
                 dataTable.setVisible(true);
-
             }
+            else if(anuitetoButton.isSelected()){
+                annuity = new Annuity(totalAmount, totalMonths, annualInterestRate);
+                mokejimoLentele.clearTable();
 
+                double menesineImokaValue = annuity.getMonthlyPayment();
+                for (int month = 1; month <= totalMonths; month++) {
+                    double palukanuDalisValue = annuity.calculateInterestPayment(month);
+                    double pagrindineDalisValue = annuity.calculatePrincipalPayment(month);
+                    double likusiSumaValue = annuity.getRemainingAmount(month);
+
+                    Mokejimas payment = new Mokejimas(month, menesineImokaValue, pagrindineDalisValue, palukanuDalisValue, likusiSumaValue);
+                    mokejimoLentele.addPayment(payment);
+                }
+                dataTable.setVisible(true);
+            }
         } catch (NumberFormatException e) {
             System.out.println("Invalid input. Please enter valid numbers for loan amount, years, months, and interest rate.");
         }
     }
 
 
-
-
-
-
-
-    private boolean isPosInt(TextField textField, String text) {
+    private boolean isPosInt(String text) {
         try {
-            int amount = Integer.parseInt(text);
-            if (amount > 0) {
-                textField.setStyle("-fx-border-color: black");
-                return true;
-            } else {
-                textField.setStyle("-fx-border-color: red");
-                return false;
-            }
+            int value = Integer.parseInt(text);
+            return value >= 0;
         } catch (NumberFormatException e) {
-            textField.setStyle("-fx-border-color: red");
             return false;
         }
     }
 
-    private boolean isPosDouble(TextField textField, String text) {
+    private boolean isPosDouble(String text) {
         try {
-            double amount = Double.parseDouble(text);
-            if (amount > 0) {
-                textField.setStyle("-fx-border-color: black");
-                return true;
-            } else {
-                textField.setStyle("-fx-border-color: red");
-                return false;
-            }
+            double value = Double.parseDouble(text);
+            return value > 0;
         } catch (NumberFormatException e) {
-            textField.setStyle("-fx-border-color: red");
             return false;
         }
     }
-
-
-
 }
-
-

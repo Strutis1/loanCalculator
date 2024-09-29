@@ -14,9 +14,9 @@ public class Linear extends Method{
     public double calculateInterestPayment(int month) {
         double monthlyRate = getMonthlyInterestRate();
 
-        double remainingPrincipal = totalAmount - (totalAmount * (month - 1) / totalMonths);
+        double remainingAmount = totalAmount - (totalAmount * (month - 1) / totalMonths);
 
-        return remainingPrincipal * monthlyRate;
+        return remainingAmount * monthlyRate;
     }
 
     @Override
@@ -24,10 +24,11 @@ public class Linear extends Method{
         return totalAmount * (1 - (month - 1) / (double) totalMonths);
     }
 
-    public double calculateTotalMonthlyPayment(int month) {
-        double principalPayment = calculateMonthlyPayment();
+    @Override
+    public double calculatePrincipalPayment(int month) {
+        double totalPayment = calculateMonthlyPayment();
         double interestPayment = calculateInterestPayment(month);
-        return principalPayment + interestPayment;
+        return totalPayment + interestPayment;
     }
 
 
