@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane fx:id="base" prefHeight="408.0" prefWidth="1067.0" style="-fx-background-color: BLACK;" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.crew.mif.loancalculator.CalcController">
+    <children>
+        <BorderPane layoutX="-73.0" prefHeight="67.0" prefWidth="1220.0" style="-fx-background-color: ORANGE;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <center>
+                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="PASKOLŲ SKAIČIUOKLĖ" wrappingWidth="127.6207275390625" BorderPane.alignment="CENTER">
+                    <font>
+                        <Font name="Franklin Gothic Demi" size="20.0" />
+                    </font>
+                </Text>
+            </center>
+        </BorderPane>
+        <Label layoutX="26.0" layoutY="87.0" prefHeight="36.0" prefWidth="214.0" style="-fx-text-fill: ORANGE;" text="PASKOLOS SUMA:" textAlignment="CENTER">
+            <font>
+                <Font name="Franklin Gothic Heavy" size="18.0" />
+            </font>
+        </Label>
+        <TextField fx:id="loanAmount" layoutX="248.0" layoutY="87.0" prefHeight="36.0" prefWidth="250.0" promptText="EUROS" style="-fx-background-color: WHITE;" />
+        <Label layoutX="26.0" layoutY="153.0" prefHeight="36.0" prefWidth="214.0" style="-fx-text-fill: ORANGE;" text="PASKOLOS TERMINAS:">
+            <font>
+                <Font name="Franklin Gothic Heavy" size="18.0" />
+            </font>
+        </Label>
+        <TextField fx:id="timeYears" layoutX="248.0" layoutY="153.0" prefHeight="33.0" prefWidth="74.0" promptText="YEARS" style="-fx-background-color: WHITE;" />
+        <TextField fx:id="timeMonths" layoutX="350.0" layoutY="153.0" prefHeight="33.0" prefWidth="74.0" promptText="MONTHS" style="-fx-background-color: WHITE;" />
+      <Label layoutX="26.0" layoutY="219.0" prefHeight="36.0" prefWidth="214.0" style="-fx-text-fill: orange;" text="METINIS PROCENTAS">
+         <font>
+            <Font name="Franklin Gothic Heavy" size="18.0" />
+         </font>
+      </Label>
+      <TextField fx:id="interestRate" layoutX="248.0" layoutY="219.0" prefHeight="36.0" prefWidth="250.0" promptText="\%" style="-fx-background-color: white;" />
+        <Label layoutX="26.0" layoutY="285.0" prefHeight="36.0" prefWidth="214.0" style="-fx-text-fill: orange;" text="GRĄŽINIMO METODAS:">
+            <font>
+                <Font name="Franklin Gothic Heavy Italic" size="18.0" />
+            </font>
+        </Label>
+      <HBox layoutX="248.0" layoutY="285.0" prefHeight="36.0" prefWidth="381.0">
+         <children>
+            <RadioButton fx:id="anuitetoButton" mnemonicParsing="false" prefHeight="30.0" prefWidth="104.0" style="-fx-text-fill: orange; -fx-font-family: verdana; -fx-font-weight: bold;" text="Anuiteto">
+               <font>
+                  <Font name="Verdana" size="12.0" />
+               </font>
+               <toggleGroup>
+                  <ToggleGroup fx:id="paymentMethodGroup" />
+               </toggleGroup>
+            </RadioButton>
+            <RadioButton fx:id="linijinisButton" mnemonicParsing="false" prefHeight="30.0" prefWidth="101.0" style="-fx-text-fill: orange; -fx-font-family: verdana; -fx-font-weight: bold;" text="Linijinis" toggleGroup="$paymentMethodGroup" />
+         </children>
+      </HBox>
+        <CheckBox fx:id="showGraphs" layoutX="42.0" layoutY="386.0" mnemonicParsing="false" selected="true" style="-fx-text-fill: orange;" text="RODYTI GRAFUS">
+            <font>
+                <Font name="Franklin Gothic Heavy" size="18.0" />
+            </font>
+        </CheckBox>
+
+        <Button fx:id="calculateButton" layoutX="254.0" layoutY="370.0" mnemonicParsing="false" prefHeight="51.0" prefWidth="133.0" style="-fx-background-color: orange; -fx-font-family: Verdana; -fx-font-weight: bold;" text="APSKAIČIUOTI" />
+        <Button fx:id="clearButton" layoutX="429.0" layoutY="370.0" mnemonicParsing="false" prefHeight="51.0" prefWidth="133.0" style="-fx-background-color: orange; onaction -fx-font-family: Verdana; -fx-font-weight: bold;" text="ANULIUOTI" />
+      <LineChart fx:id="graph" layoutX="630.0" layoutY="67.0" visible="false">
+        <xAxis>
+          <CategoryAxis side="BOTTOM" />
+        </xAxis>
+        <yAxis>
+          <NumberAxis side="LEFT" />
+        </yAxis>
+      </LineChart>
+    </children>
+</AnchorPane>
