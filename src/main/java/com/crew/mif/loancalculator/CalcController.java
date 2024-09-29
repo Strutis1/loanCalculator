@@ -6,8 +6,9 @@ import data.Mokejimas;
 import data.MokejimoLentele;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 
 public class CalcController {
@@ -55,7 +56,10 @@ public class CalcController {
     private TextField timeYears;
 
     @FXML
-    private CategoryAxis monthAxis;
+    private LineChart<Number, Number> mokejimoGrafikas;
+
+    @FXML
+    private NumberAxis monthAxis;
 
     @FXML
     private NumberAxis paymentAxis;
@@ -65,12 +69,9 @@ public class CalcController {
 
 
     private MokejimoLentele mokejimoLentele;
-    private Linear linear;
-    private Annuity annuity;
 
     public void initialize() {
         mokejimoLentele = new MokejimoLentele(dataTable, menuo, menesineImoka, pagrindineDalis, palukanuDalis, likusiSuma);
-
         clearButton.setOnAction(this::handleClear);
         calculateButton.setOnAction(this::checkInput);
     }
@@ -81,17 +82,23 @@ public class CalcController {
         timeYears.clear();
         timeMonths.clear();
         interestRate.clear();
+
         anuitetoButton.setSelected(false);
         linijinisButton.setSelected(false);
+
         mokejimoLentele.clearTable();
         mokejimoLentele.setVisible(false);
+
+        mokejimoGrafikas.getData().clear();
+        mokejimoGrafikas.setVisible(false);
+
     }
 
     @FXML
     private void checkInput(ActionEvent actionEvent) {
         if (isPosDouble(loanAmount) && isPosInt(timeMonths) && isPosInt(timeMonths) &&
                 (anuitetoButton.isSelected() || linijinisButton.isSelected()) &&
-                Integer.parseInt(timeYears.getText()) != 0 && Integer.parseInt(timeMonths.getText()) != 0) {
+                (Integer.parseInt(timeYears.getText()) != 0 || Integer.parseInt(timeMonths.getText()) != 0)) {
             handleCalculate();
         }
     }
@@ -102,8 +109,12 @@ public class CalcController {
             int totalMonths = Integer.parseInt(timeYears.getText()) * 12 + Integer.parseInt(timeMonths.getText());
             double annualInterestRate = Double.parseDouble(interestRate.getText());
 
+            double[] monthlyPayments = new double[totalMonths];
+            double[] interestPayments = new double[totalMonths];
+            double[] principalPayments = new double[totalMonths];
+
             if (linijinisButton.isSelected()) {
-                linear = new Linear(totalAmount, totalMonths, annualInterestRate);
+                Linear linear = new Linear(totalAmount, totalMonths, annualInterestRate);
                 mokejimoLentele.clearTable();
 
                 double pagrindineDalisValue = linear.calculateMonthlyPayment();
@@ -112,13 +123,18 @@ public class CalcController {
                     double menesineImokaValue = linear.calculatePrincipalPayment(month);
                     double likusiSumaValue = linear.getRemainingAmount(month);
 
+                    monthlyPayments[month - 1] = menesineImokaValue;
+                    interestPayments[month - 1] = palukanuDalisValue;
+                    principalPayments[month - 1] = pagrindineDalisValue;
+
+
                     Mokejimas payment = new Mokejimas(month, menesineImokaValue, pagrindineDalisValue, palukanuDalisValue, likusiSumaValue);
                     mokejimoLentele.addPayment(payment);
                 }
-                dataTable.setVisible(true);
+
             }
             else if(anuitetoButton.isSelected()){
-                annuity = new Annuity(totalAmount, totalMonths, annualInterestRate);
+                Annuity annuity = new Annuity(totalAmount, totalMonths, annualInterestRate);
                 mokejimoLentele.clearTable();
 
                 double menesineImokaValue = annuity.getMonthlyPayment();
@@ -127,10 +143,36 @@ public class CalcController {
                     double pagrindineDalisValue = annuity.calculatePrincipalPayment(month);
                     double likusiSumaValue = annuity.getRemainingAmount(month);
 
+                    monthlyPayments[month - 1] = menesineImokaValue;
+                    interestPayments[month - 1] = palukanuDalisValue;
+                    principalPayments[month - 1] = pagrindineDalisValue;
+
                     Mokejimas payment = new Mokejimas(month, menesineImokaValue, pagrindineDalisValue, palukanuDalisValue, likusiSumaValue);
                     mokejimoLentele.addPayment(payment);
                 }
-                dataTable.setVisible(true);
+            }
+            dataTable.setVisible(true);
+
+            if (showGraphs.isSelected()) {
+                mokejimoGrafikas.setVisible(true);
+                mokejimoGrafikas.getData().clear();
+
+                XYChart.Series<Number, Number> monthlySeries = new XYChart.Series<>();
+                monthlySeries.setName("Menesinė įmoka");
+
+                XYChart.Series<Number, Number> interestSeries = new XYChart.Series<>();
+                interestSeries.setName("Palūkanų dalis");
+
+                XYChart.Series<Number, Number> principalSeries = new XYChart.Series<>();
+                principalSeries.setName("Pagrindinė dalis");
+
+                for (int month = 1; month <= totalMonths; month++) {
+                    monthlySeries.getData().add(new XYChart.Data<>(month, monthlyPayments[month - 1]));
+                    interestSeries.getData().add(new XYChart.Data<>(month, interestPayments[month - 1]));
+                    principalSeries.getData().add(new XYChart.Data<>(month, principalPayments[month - 1]));
+                }
+
+                mokejimoGrafikas.getData().addAll(monthlySeries, interestSeries, principalSeries);
             }
         } catch (NumberFormatException e) {
             System.out.println("Invalid input. Please enter valid numbers for loan amount, years, months, and interest rate.");

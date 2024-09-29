@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.chart.CategoryAxis?>
 <?import javafx.scene.chart.LineChart?>
 <?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.control.Button?>
@@ -17,7 +16,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane prefHeight="1200.0" prefWidth="1980.0" style="-fx-background-color: BLACK;" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.crew.mif.loancalculator.CalcController">
+<AnchorPane prefHeight="750.0" prefWidth="1100.0" style="-fx-background-color: BLACK;" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.crew.mif.loancalculator.CalcController">
     <children>
         <BorderPane layoutX="-73.0" prefHeight="67.0" prefWidth="1220.0" style="-fx-background-color: ORANGE;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <center>
@@ -73,7 +72,7 @@
 
         <Button fx:id="calculateButton" layoutX="254.0" layoutY="390.0" mnemonicParsing="false" prefHeight="51.0" prefWidth="133.0" style="-fx-background-color: orange; -fx-font-family: Verdana; -fx-font-weight: bold;" text="APSKAIČIUOTI" />
         <Button fx:id="clearButton" layoutX="429.0" layoutY="390.0" mnemonicParsing="false" prefHeight="51.0" prefWidth="133.0" style="-fx-background-color: orange; -fx-font-family: Verdana; -fx-font-weight: bold;" text="ANULIUOTI" />
-      <TableView fx:id="dataTable" layoutX="641.0" layoutY="69.0" prefHeight="360.0" prefWidth="480.0" style="-fx-background-color: orange;" AnchorPane.bottomAnchor="107.19999999999999" AnchorPane.topAnchor="69.0">
+      <TableView fx:id="dataTable" layoutX="633.0" layoutY="69.0" prefHeight="571.0" prefWidth="478.0" style="-fx-background-color: orange;" visible="false" AnchorPane.bottomAnchor="107.0" AnchorPane.topAnchor="69.0">
          <columns>
             <TableColumn fx:id="menuo" editable="false" prefWidth="52.7999267578125" text="Mėnuo" />
             <TableColumn fx:id="menesineImoka" editable="false" prefWidth="100.0" text="Mėnesinė įmoka" />
@@ -82,9 +81,9 @@
             <TableColumn fx:id="likusiSuma" editable="false" minWidth="0.0" prefWidth="136.0" text="Likusi paskolos suma" />
          </columns>
       </TableView>
-      <LineChart layoutX="26.0" layoutY="546.0" style="-fx-background-color: orange;" title="Mokėjimo Grafikas">
+      <LineChart fx:id="mokejimoGrafikas" layoutX="26.0" layoutY="451.0" prefHeight="294.0" prefWidth="538.0" style="-fx-background-color: orange;" title="Mokėjimo Grafikas" visible="false">
         <xAxis>
-          <CategoryAxis fx:id="monthAxis" label="Months" side="BOTTOM" style="-fx-tick-label-fill: orange;" tickLabelFill="#dc7908" />
+          <NumberAxis fx:id="monthAxis" label="Months" side="BOTTOM" style="-fx-tick-label-fill: orange;" tickLabelFill="#dc7908" tickMarkVisible="false" />
         </xAxis>
         <yAxis>
           <NumberAxis fx:id="paymentAxis" label="Payments" side="LEFT" />

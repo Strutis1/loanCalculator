@@ -31,7 +31,6 @@ public class Annuity extends Method {
 
     @Override
     public double calculatePrincipalPayment(int month) {
-        double totalPayment = calculateMonthlyPayment();
         double interestPayment = calculateInterestPayment(month);
         return monthlyPayment - interestPayment;
     }

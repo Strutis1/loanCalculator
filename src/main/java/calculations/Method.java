@@ -1,8 +1,8 @@
 package calculations;
 
 public abstract class Method {
-    protected double totalAmount;   // The loan amount
-    protected int totalMonths;    // The loan term in months
+    protected double totalAmount;
+    protected int totalMonths;
     protected double annualInterestRate;
 
     // Constructor for initializing common fields
@@ -18,13 +18,6 @@ public abstract class Method {
 
     public abstract double calculatePrincipalPayment(int month);
 
-    public double getTotalAmount() {
-        return totalAmount;
-    }
-
-    public int getTotalMonths() {
-        return totalMonths;
-    }
 
     public double getMonthlyInterestRate() {
         return annualInterestRate / 100 / 12;
