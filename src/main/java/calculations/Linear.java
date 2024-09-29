@@ -1,8 +1,8 @@
 package calculations;
 
 public class Linear extends Method{
-    Linear(double totalAmount, int years, int months, double annualInterestRate){
-        super(totalAmount, years, months, annualInterestRate);
+    public Linear(double totalAmount, int totalMonths, double annualInterestRate){
+        super(totalAmount, totalMonths, annualInterestRate);
     }
 
     @Override
@@ -17,6 +17,11 @@ public class Linear extends Method{
         double remainingPrincipal = totalAmount - (totalAmount * (month - 1) / totalMonths);
 
         return remainingPrincipal * monthlyRate;
+    }
+
+    @Override
+    public double getRemainingAmount(int month) {
+        return totalAmount * (1 - (month - 1) / (double) totalMonths);
     }
 
     public double calculateTotalMonthlyPayment(int month) {

@@ -1,20 +1,40 @@
 package com.crew.mif.loancalculator;
 
+import calculations.Annuity;
+import calculations.Linear;
+import data.Mokejimas;
 import javafx.event.ActionEvent;
 
 import javafx.fxml.FXML;
-import javafx.scene.chart.LineChart;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.TextField;
-import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 
 public class CalcController {
 
     @FXML
+    private TableView<Mokejimas> dataTable;
+
+    @FXML
+    private TableColumn<Mokejimas, Integer> menuo;
+
+    @FXML
+    private TableColumn<Mokejimas, Double> menesineImoka;
+
+    @FXML
+    private TableColumn<Mokejimas, Double> pagrindineDalis;
+
+    @FXML
+    private TableColumn<Mokejimas, Double> palukanuDalis;
+
+    @FXML
+    private TableColumn<Mokejimas, Double> likusiSuma;
+
+
+    @FXML
     private RadioButton anuitetoButton;
+
+    private Annuity annuity;
 
     @FXML
     private AnchorPane base;
@@ -25,14 +45,14 @@ public class CalcController {
     @FXML
     private Button clearButton;
 
-    @FXML
-    private LineChart<?, ?> graph;
 
     @FXML
     private TextField interestRate;
 
     @FXML
     private RadioButton linijinisButton;
+
+    private Linear linear;
 
     @FXML
     private TextField loanAmount;
@@ -52,24 +72,31 @@ public class CalcController {
 
 
 
+
+
     private void handleClear(ActionEvent event) {
         loanAmount.clear();
         timeYears.clear();
         timeMonths.clear();
         anuitetoButton.setSelected(false);
         linijinisButton.setSelected(false);
-        showGraphs.setSelected(false);
+        dataTable.getItems().clear();
     }
 
     public void initialize() {
+        menuo.setCellValueFactory(new PropertyValueFactory<>("Mėnuo"));
+        menesineImoka.setCellValueFactory(new PropertyValueFactory<>("Menesinė Įmoka"));
+        pagrindineDalis.setCellValueFactory(new PropertyValueFactory<>("Pagrindinė dalis"));
+        palukanuDalis.setCellValueFactory(new PropertyValueFactory<>("Palūkanų dalis"));
+        likusiSuma.setCellValueFactory(new PropertyValueFactory<>("Likusi suma"));
         clearButton.setOnAction(this::handleClear);
         calculateButton.setOnAction(this::checkInput);
     }
 
     private void checkInput(ActionEvent actionEvent) {
-        if (isDouble(loanAmount, loanAmount.getText()) &&
-                isInt(timeMonths, timeMonths.getText()) &&
-                isInt(timeYears, timeYears.getText()) &&
+        if (isPosDouble(loanAmount, loanAmount.getText()) &&
+                isPosInt(timeMonths, timeMonths.getText()) &&
+                isPosInt(timeYears, timeYears.getText()) &&
                 (anuitetoButton.isSelected() || linijinisButton.isSelected())) {
 
             handleCalculate();
@@ -78,6 +105,18 @@ public class CalcController {
 
     private void handleCalculate() {
         try {
+            double totalAmount = Double.parseDouble(loanAmount.getText());
+            int totalMonths = Integer.parseInt(timeYears.getText()) * 12 + Integer.parseInt(timeMonths.getText());
+            double annualInterestRate = Double.parseDouble(interestRate.getText());
+
+
+
+            if(linijinisButton.isSelected()) {
+                linear = new Linear(totalAmount, totalMonths, annualInterestRate);
+
+                dataTable.setVisible(true);
+
+            }
 
         } catch (NumberFormatException e) {
             System.out.println("Invalid input. Please enter valid numbers for loan amount, years, months, and interest rate.");
@@ -90,24 +129,34 @@ public class CalcController {
 
 
 
-    private boolean isInt(TextField textField, String text) {
+    private boolean isPosInt(TextField textField, String text) {
         try {
             int amount = Integer.parseInt(text);
-            textField.setStyle("-fx-border-color: black");  // Reset style if valid
-            return true;
+            if (amount > 0) {
+                textField.setStyle("-fx-border-color: black");
+                return true;
+            } else {
+                textField.setStyle("-fx-border-color: red");
+                return false;
+            }
         } catch (NumberFormatException e) {
-            textField.setStyle("-fx-border-color: red");  // Indicate error with red text
+            textField.setStyle("-fx-border-color: red");
             return false;
         }
     }
 
-    private boolean isDouble(TextField textField, String text) {
+    private boolean isPosDouble(TextField textField, String text) {
         try {
             double amount = Double.parseDouble(text);
-            textField.setStyle("-fx-border-color: black");  // Reset style if valid
-            return true;
+            if (amount > 0) {
+                textField.setStyle("-fx-border-color: black");
+                return true;
+            } else {
+                textField.setStyle("-fx-border-color: red");
+                return false;
+            }
         } catch (NumberFormatException e) {
-            textField.setStyle("-fx-border-color: red");  // Indicate error with red text
+            textField.setStyle("-fx-border-color: red");
             return false;
         }
     }

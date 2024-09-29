@@ -1,8 +1,8 @@
 package calculations;
 
 public class Annuity extends Method{
-    Annuity(double totalAmount, int years, int months, double annualInterestRate){
-        super(totalAmount, years, months, annualInterestRate);
+    Annuity(double totalAmount, int totalMonths, double annualInterestRate){
+        super(totalAmount, totalMonths, annualInterestRate);
     }
 
     @Override
@@ -15,9 +15,20 @@ public class Annuity extends Method{
     @Override
     public double calculateInterestPayment(int month) {
         double monthlyRate = getMonthlyInterestRate();
-        // The remaining principal decreases each month, so the interest decreases
         double remainingAmount = totalAmount * (Math.pow(1 + monthlyRate, totalMonths - month) - 1) /
                 (Math.pow(1 + monthlyRate, totalMonths) - 1);
         return remainingAmount * monthlyRate;
     }
+
+    @Override
+    public double getRemainingAmount(int month) {
+        double interestRatePerMonth = getMonthlyInterestRate();
+        double monthlyPayment = calculateMonthlyPayment();
+
+        double remainingAmount = totalAmount * Math.pow(1 + interestRatePerMonth, month)
+                - (monthlyPayment * (Math.pow(1 + interestRatePerMonth, month) - 1)) / interestRatePerMonth;
+        return remainingAmount;
+    }
+
+
 }
