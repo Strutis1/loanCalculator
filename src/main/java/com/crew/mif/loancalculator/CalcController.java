@@ -11,6 +11,11 @@ import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.Writer;
+
 public class CalcController {
 
     @FXML
@@ -44,6 +49,9 @@ public class CalcController {
     private Button clearButton;
 
     @FXML
+    private Button saveButton;
+
+    @FXML
     private TextField interestRate;
 
     @FXML
@@ -71,9 +79,10 @@ public class CalcController {
     private MokejimoLentele mokejimoLentele;
 
     public void initialize() {
-        mokejimoLentele = new MokejimoLentele(dataTable, menuo, menesineImoka, pagrindineDalis, palukanuDalis, likusiSuma);
-        clearButton.setOnAction(this::handleClear);
-        calculateButton.setOnAction(this::checkInput);
+            mokejimoLentele = new MokejimoLentele(dataTable, menuo, menesineImoka, pagrindineDalis, palukanuDalis, likusiSuma);
+            clearButton.setOnAction(this::handleClear);
+            calculateButton.setOnAction(this::checkInput);
+            saveButton.setOnAction(this::handleSave);
     }
 
     @FXML
@@ -179,12 +188,37 @@ public class CalcController {
         }
     }
 
+    private void handleSave(ActionEvent event) {
+        exportDataCSV("Ataskaita.csv");
+        System.out.println("Saved payment data to Ataskaita.csv");
+    }
+
+    private void exportDataCSV(String fileName){
+        File file = new File(fileName);
+        try (Writer writer = new BufferedWriter(new FileWriter(file))){
+            String columnNames = "Menuo,Menesine Imoka,Pagrindine dalis,Palukanu dalis,Likusi suma\n";
+            writer.write(columnNames);
+            for (Mokejimas mokejimas : dataTable.getItems()) {
+
+                String text = mokejimas.getMenuo() + "," + mokejimas.getMenesineImoka() + ","
+                        + mokejimas.getPagrindineDalis() + "," + mokejimas.getPalukanuDalis()
+                        + "," + mokejimas.getLikusiSuma() + "\n";
+
+                writer.write(text);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
 
     private boolean isPosInt(TextField textField) {
         try {
             int value;
             if (textField.getText() == null || textField.getText().trim().isEmpty()) {
-                value = 0;
+                textField.setStyle("-fx-border-color: red");
+                return false;
             } else{
                 value = Integer.parseInt(textField.getText());
             }
@@ -204,7 +238,8 @@ public class CalcController {
         try {
             double value;
             if(textField.getText() == null || textField.getText().trim().isEmpty()) {
-                value = 0;
+                textField.setStyle("-fx-border-color: red");
+                return false;
             }
             else{
                 value = Double.parseDouble(textField.getText());
