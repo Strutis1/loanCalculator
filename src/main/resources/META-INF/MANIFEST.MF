@@ -1,3 +1,3 @@
 Manifest-Version: 1.0
-Main-Class: com.crew.mif.loancalculator.CalcApplication
+Main-Class: com.crew.mif.loancalculator.Main
 
