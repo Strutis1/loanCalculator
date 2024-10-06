@@ -15,6 +15,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 public class CalcController {
@@ -135,15 +136,15 @@ public class CalcController {
                 chartData.addAll(monthlySeries, interestSeries, principalSeries);
             }
 
-//            closeCurrentStage();
-            openSecondStage(payments, chartData);
+//          closeCurrentStage();
+            openSecondStage(payments, chartData, showGraphs.isSelected());
 
         } catch (NumberFormatException e) {
             System.out.println("Invalid input. Please enter valid numbers for loan amount, years, months, and interest rate.");
         }
     }
 
-    private void openSecondStage(ObservableList<Mokejimas> payments, ObservableList<XYChart.Series<Number, Number>> chartData) {
+    private void openSecondStage(ObservableList<Mokejimas> payments, ObservableList<XYChart.Series<Number, Number>> chartData, boolean showGraphs) {
         try {
             FXMLLoader secondLoader = new FXMLLoader(getClass().getResource("mokejimoLentele.fxml"));
             Parent secondRoot = secondLoader.load();
@@ -152,8 +153,9 @@ public class CalcController {
             Scene secondScene = new Scene(secondRoot, 1000, 750);
 
             DataController dataController = secondLoader.getController();
-            dataController.setDataForSecondStage(payments, chartData);
+            dataController.setDataForSecondStage(payments, chartData, showGraphs);
 
+            secondStage.initModality(Modality.APPLICATION_MODAL);
             secondStage.setTitle("Mokėjimų Lentelė");
             secondStage.setScene(secondScene);
             secondStage.show();

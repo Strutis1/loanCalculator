@@ -68,14 +68,16 @@ public class DataController {
         }
     }
 
-    public void setDataForSecondStage(ObservableList<Mokejimas> tableData, ObservableList<XYChart.Series<Number, Number>> chartData) {
-        if(tableData != null) {
+    public void setDataForSecondStage(ObservableList<Mokejimas> tableData, ObservableList<XYChart.Series<Number, Number>> chartData, boolean showGraphs) {
+        if (tableData != null) {
             dataTable.setItems(tableData);
         }
-        if(chartData != null) {
+        if (chartData != null) {
             mokejimoGrafikas.getData().clear();
-            mokejimoGrafikas.setVisible(true);
-            mokejimoGrafikas.getData().addAll(chartData);
+            if (showGraphs) {
+                mokejimoGrafikas.setVisible(true);
+                mokejimoGrafikas.getData().addAll(chartData);
+            }
         }
     }
 }
