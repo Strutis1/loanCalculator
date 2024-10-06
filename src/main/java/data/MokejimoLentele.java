@@ -32,6 +32,10 @@ public class MokejimoLentele {
         dataTable.refresh();
     }
 
+    public ObservableList<Mokejimas> getTableData() {
+        return tableData;
+    }
+
     public void setVisible(boolean visible){
         dataTable.setVisible(visible);
     }

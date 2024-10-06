@@ -9,16 +9,16 @@ import javafx.stage.Stage;
 public class CalcApplication extends Application {
 
     @Override
-    public void start(Stage stage) throws Exception {
+    public void start(Stage firstStage) throws Exception {
         // Load the FXML file
-        FXMLLoader loader = new FXMLLoader(CalcApplication.class.getResource("hello-view.fxml"));
-        Parent root = loader.load();
+        FXMLLoader firstLoader = new FXMLLoader(CalcApplication.class.getResource("calculator.fxml"));
+        Parent firstRoot = firstLoader.load();
 
-        Scene scene = new Scene(root, 1100, 750);
+        Scene firstScene = new Scene(firstRoot, 630, 470);
+        firstStage.setTitle("Loan Calculator");
+        firstStage.setScene(firstScene);
+        firstStage.show();
 
-        stage.setTitle("Loan Calculator");
-        stage.setScene(scene);
-        stage.show();
     }
 
     public static void main(String[] args) {

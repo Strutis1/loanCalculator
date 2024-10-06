@@ -3,38 +3,21 @@ package com.crew.mif.loancalculator;
 import calculations.Annuity;
 import calculations.Linear;
 import data.Mokejimas;
-import data.MokejimoLentele;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.*;
-
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.Writer;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.TextField;
+import javafx.stage.Stage;
 
 public class CalcController {
-
-    @FXML
-    private TableView<Mokejimas> dataTable;
-
-    @FXML
-    private TableColumn<Mokejimas, Integer> menuo;
-
-    @FXML
-    private TableColumn<Mokejimas, Double> menesineImoka;
-
-    @FXML
-    private TableColumn<Mokejimas, Double> pagrindineDalis;
-
-    @FXML
-    private TableColumn<Mokejimas, Double> palukanuDalis;
-
-    @FXML
-    private TableColumn<Mokejimas, Double> likusiSuma;
 
     @FXML
     private RadioButton anuitetoButton;
@@ -49,9 +32,6 @@ public class CalcController {
     private Button clearButton;
 
     @FXML
-    private Button saveButton;
-
-    @FXML
     private TextField interestRate;
 
     @FXML
@@ -64,25 +44,11 @@ public class CalcController {
     private TextField timeYears;
 
     @FXML
-    private LineChart<Number, Number> mokejimoGrafikas;
-
-    @FXML
-    private NumberAxis monthAxis;
-
-    @FXML
-    private NumberAxis paymentAxis;
-
-    @FXML
     private CheckBox showGraphs;
 
-
-    private MokejimoLentele mokejimoLentele;
-
     public void initialize() {
-            mokejimoLentele = new MokejimoLentele(dataTable, menuo, menesineImoka, pagrindineDalis, palukanuDalis, likusiSuma);
-            clearButton.setOnAction(this::handleClear);
-            calculateButton.setOnAction(this::checkInput);
-            saveButton.setOnAction(this::handleSave);
+        clearButton.setOnAction(this::handleClear);
+        calculateButton.setOnAction(this::checkInput);
     }
 
     @FXML
@@ -91,16 +57,8 @@ public class CalcController {
         timeYears.clear();
         timeMonths.clear();
         interestRate.clear();
-
         anuitetoButton.setSelected(false);
         linijinisButton.setSelected(false);
-
-        mokejimoLentele.clearTable();
-        mokejimoLentele.setVisible(false);
-
-        mokejimoGrafikas.getData().clear();
-        mokejimoGrafikas.setVisible(false);
-
     }
 
     @FXML
@@ -122,10 +80,11 @@ public class CalcController {
             double[] interestPayments = new double[totalMonths];
             double[] principalPayments = new double[totalMonths];
 
+            ObservableList<Mokejimas> payments = FXCollections.observableArrayList();
+            ObservableList<XYChart.Series<Number, Number>> chartData = FXCollections.observableArrayList();
+
             if (linijinisButton.isSelected()) {
                 Linear linear = new Linear(totalAmount, totalMonths, annualInterestRate);
-                mokejimoLentele.clearTable();
-
                 double pagrindineDalisValue = linear.calculateMonthlyPayment();
                 for (int month = 1; month <= totalMonths; month++) {
                     double palukanuDalisValue = linear.calculateInterestPayment(month);
@@ -136,16 +95,11 @@ public class CalcController {
                     interestPayments[month - 1] = palukanuDalisValue;
                     principalPayments[month - 1] = pagrindineDalisValue;
 
-
                     Mokejimas payment = new Mokejimas(month, menesineImokaValue, pagrindineDalisValue, palukanuDalisValue, likusiSumaValue);
-                    mokejimoLentele.addPayment(payment);
+                    payments.add(payment);
                 }
-
-            }
-            else if(anuitetoButton.isSelected()){
+            } else if (anuitetoButton.isSelected()) {
                 Annuity annuity = new Annuity(totalAmount, totalMonths, annualInterestRate);
-                mokejimoLentele.clearTable();
-
                 double menesineImokaValue = annuity.getMonthlyPayment();
                 for (int month = 1; month <= totalMonths; month++) {
                     double palukanuDalisValue = annuity.calculateInterestPayment(month);
@@ -157,15 +111,11 @@ public class CalcController {
                     principalPayments[month - 1] = pagrindineDalisValue;
 
                     Mokejimas payment = new Mokejimas(month, menesineImokaValue, pagrindineDalisValue, palukanuDalisValue, likusiSumaValue);
-                    mokejimoLentele.addPayment(payment);
+                    payments.add(payment);
                 }
             }
-            dataTable.setVisible(true);
 
             if (showGraphs.isSelected()) {
-                mokejimoGrafikas.setVisible(true);
-                mokejimoGrafikas.getData().clear();
-
                 XYChart.Series<Number, Number> monthlySeries = new XYChart.Series<>();
                 monthlySeries.setName("Menesinė įmoka");
 
@@ -181,37 +131,42 @@ public class CalcController {
                     principalSeries.getData().add(new XYChart.Data<>(month, principalPayments[month - 1]));
                 }
 
-                mokejimoGrafikas.getData().addAll(monthlySeries, interestSeries, principalSeries);
+
+                chartData.addAll(monthlySeries, interestSeries, principalSeries);
             }
+
+//            closeCurrentStage();
+            openSecondStage(payments, chartData);
+
         } catch (NumberFormatException e) {
             System.out.println("Invalid input. Please enter valid numbers for loan amount, years, months, and interest rate.");
         }
     }
 
-    private void handleSave(ActionEvent event) {
-        exportDataCSV("Ataskaita.csv");
-        System.out.println("Saved payment data to Ataskaita.csv");
-    }
+    private void openSecondStage(ObservableList<Mokejimas> payments, ObservableList<XYChart.Series<Number, Number>> chartData) {
+        try {
+            FXMLLoader secondLoader = new FXMLLoader(getClass().getResource("mokejimoLentele.fxml"));
+            Parent secondRoot = secondLoader.load();
 
-    private void exportDataCSV(String fileName){
-        File file = new File(fileName);
-        try (Writer writer = new BufferedWriter(new FileWriter(file))){
-            String columnNames = "Menuo,Menesine Imoka,Pagrindine dalis,Palukanu dalis,Likusi suma\n";
-            writer.write(columnNames);
-            for (Mokejimas mokejimas : dataTable.getItems()) {
+            Stage secondStage = new Stage();
+            Scene secondScene = new Scene(secondRoot, 1000, 750);
 
-                String text = mokejimas.getMenuo() + "," + mokejimas.getMenesineImoka() + ","
-                        + mokejimas.getPagrindineDalis() + "," + mokejimas.getPalukanuDalis()
-                        + "," + mokejimas.getLikusiSuma() + "\n";
+            DataController dataController = secondLoader.getController();
+            dataController.setDataForSecondStage(payments, chartData);
 
-                writer.write(text);
-            }
+            secondStage.setTitle("Mokėjimų Lentelė");
+            secondStage.setScene(secondScene);
+            secondStage.show();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-
+    //    private void closeCurrentStage() {
+//        Stage currentStage = (Stage) calculateButton.getScene().getWindow();
+//        currentStage.close();
+//    }
 
     private boolean isPosInt(TextField textField) {
         try {
@@ -219,11 +174,11 @@ public class CalcController {
             if (textField.getText() == null || textField.getText().trim().isEmpty()) {
                 textField.setStyle("-fx-border-color: red");
                 return false;
-            } else{
+            } else {
                 value = Integer.parseInt(textField.getText());
             }
 
-            if(value >= 0) {
+            if (value >= 0) {
                 textField.setStyle("-fx-border-color: black");
                 return true;
             }
@@ -237,14 +192,13 @@ public class CalcController {
     private boolean isPosDouble(TextField textField) {
         try {
             double value;
-            if(textField.getText() == null || textField.getText().trim().isEmpty()) {
+            if (textField.getText() == null || textField.getText().trim().isEmpty()) {
                 textField.setStyle("-fx-border-color: red");
                 return false;
-            }
-            else{
+            } else {
                 value = Double.parseDouble(textField.getText());
             }
-            if(value >= 0) {
+            if (value >= 0) {
                 textField.setStyle("-fx-border-color: black");
                 return true;
             }
