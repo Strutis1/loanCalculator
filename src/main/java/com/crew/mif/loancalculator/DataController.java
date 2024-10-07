@@ -7,9 +7,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.Button;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -42,11 +40,65 @@ public class DataController {
     @FXML
     private LineChart<Number, Number> mokejimoGrafikas;
 
+    @FXML
+    private CheckBox filterOn;
+
+    @FXML
+    private Button filterButton;
+
+    @FXML
+    private ComboBox<?> monthsFrom;
+
+    @FXML
+    private ComboBox<?> monthsTo;
+
     private MokejimoLentele mokejimoLentele;
 
     public void initialize() {
         mokejimoLentele = new MokejimoLentele(dataTable, menuo, menesineImoka, pagrindineDalis, palukanuDalis, likusiSuma);
+
+        receiveData();
+        
         saveButton.setOnAction(this::handleSave);
+        filterOn.setOnAction(this::handleFilterOn);
+        filterButton.setOnAction(this::handleFilter);
+    }
+
+    private void receiveData() {
+        ObservableList<Mokejimas> payments = DataHolder.getInstance().getPayments();
+        ObservableList<XYChart.Series<Number, Number>> chartData = DataHolder.getInstance().getChartData();
+
+        if (payments != null) {
+            dataTable.getItems().setAll(payments);
+        }
+
+        if (chartData != null) {
+            mokejimoGrafikas.getData().addAll(chartData);
+        }
+
+        if(DataHolder.getInstance().graphs){
+            mokejimoGrafikas.setVisible(true);
+        }
+    }
+
+    private void handleFilter(ActionEvent actionEvent) {
+        if(filterOn.isSelected()){
+
+        }
+    }
+
+    private void handleFilterOn(ActionEvent actionEvent) {
+        if (filterOn.isSelected()) {
+            monthsFrom.setDisable(false);
+            monthsTo.setDisable(false);
+            monthsTo.setVisible(true);
+            monthsFrom.setVisible(true);
+        } else {
+            monthsFrom.setDisable(true);
+            monthsTo.setDisable(true);
+            monthsTo.setVisible(false);
+            monthsFrom.setVisible(false);
+        }
     }
 
     private void handleSave(ActionEvent event) {
@@ -68,16 +120,5 @@ public class DataController {
         }
     }
 
-    public void setDataForSecondStage(ObservableList<Mokejimas> tableData, ObservableList<XYChart.Series<Number, Number>> chartData, boolean showGraphs) {
-        if (tableData != null) {
-            dataTable.setItems(tableData);
-        }
-        if (chartData != null) {
-            mokejimoGrafikas.getData().clear();
-            if (showGraphs) {
-                mokejimoGrafikas.setVisible(true);
-                mokejimoGrafikas.getData().addAll(chartData);
-            }
-        }
-    }
+
 }

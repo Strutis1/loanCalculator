@@ -77,6 +77,8 @@ public class CalcController {
             int totalMonths = Integer.parseInt(timeYears.getText()) * 12 + Integer.parseInt(timeMonths.getText());
             double annualInterestRate = Double.parseDouble(interestRate.getText());
 
+
+
             double[] monthlyPayments = new double[totalMonths];
             double[] interestPayments = new double[totalMonths];
             double[] principalPayments = new double[totalMonths];
@@ -87,9 +89,10 @@ public class CalcController {
             if (linijinisButton.isSelected()) {
                 Linear linear = new Linear(totalAmount, totalMonths, annualInterestRate);
                 double pagrindineDalisValue = linear.calculateMonthlyPayment();
+
                 for (int month = 1; month <= totalMonths; month++) {
-                    double palukanuDalisValue = linear.calculateInterestPayment(month);
                     double menesineImokaValue = linear.calculatePrincipalPayment(month);
+                    double palukanuDalisValue = linear.calculateInterestPayment(month);
                     double likusiSumaValue = linear.getRemainingAmount(month);
 
                     monthlyPayments[month - 1] = menesineImokaValue;
@@ -103,8 +106,8 @@ public class CalcController {
                 Annuity annuity = new Annuity(totalAmount, totalMonths, annualInterestRate);
                 double menesineImokaValue = annuity.getMonthlyPayment();
                 for (int month = 1; month <= totalMonths; month++) {
-                    double palukanuDalisValue = annuity.calculateInterestPayment(month);
                     double pagrindineDalisValue = annuity.calculatePrincipalPayment(month);
+                    double palukanuDalisValue = annuity.calculateInterestPayment(month);
                     double likusiSumaValue = annuity.getRemainingAmount(month);
 
                     monthlyPayments[month - 1] = menesineImokaValue;
@@ -138,14 +141,21 @@ public class CalcController {
 
 //          closeCurrentStage();
             openSecondStage(payments, chartData, showGraphs.isSelected());
-
         } catch (NumberFormatException e) {
             System.out.println("Invalid input. Please enter valid numbers for loan amount, years, months, and interest rate.");
         }
     }
 
-    private void openSecondStage(ObservableList<Mokejimas> payments, ObservableList<XYChart.Series<Number, Number>> chartData, boolean showGraphs) {
+    private void sendData(ObservableList<Mokejimas> payments, ObservableList<XYChart.Series<Number, Number>> chartData, boolean graphs) {
+        DataHolder holder = DataHolder.getInstance();
+        holder.setPayments(payments);
+        holder.setChartData(chartData);
+    }
+
+    private void openSecondStage(ObservableList<Mokejimas> payments, ObservableList<XYChart.Series<Number, Number>> chartData, boolean graphs) {
         try {
+            sendData(payments, chartData, graphs);
+
             FXMLLoader secondLoader = new FXMLLoader(getClass().getResource("mokejimoLentele.fxml"));
             Parent secondRoot = secondLoader.load();
 
@@ -153,7 +163,6 @@ public class CalcController {
             Scene secondScene = new Scene(secondRoot, 1000, 750);
 
             DataController dataController = secondLoader.getController();
-            dataController.setDataForSecondStage(payments, chartData, showGraphs);
 
             secondStage.initModality(Modality.APPLICATION_MODAL);
             secondStage.setTitle("Mokėjimų Lentelė");

@@ -46,4 +46,5 @@ public class Mokejimas {
     public String getLikusiSuma() {
         return decimalFormat.format(likusiSuma.get());
     }
+
 }
