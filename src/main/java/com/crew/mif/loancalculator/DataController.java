@@ -47,12 +47,15 @@ public class DataController {
     private Button filterButton;
 
     @FXML
-    private ComboBox<?> monthsFrom;
+    private ComboBox<Integer> monthsFrom;
 
     @FXML
-    private ComboBox<?> monthsTo;
+    private ComboBox<Integer> monthsTo;
 
     private MokejimoLentele mokejimoLentele;
+
+    private int totalMonths;
+
 
     public void initialize() {
         mokejimoLentele = new MokejimoLentele(dataTable, menuo, menesineImoka, pagrindineDalis, palukanuDalis, likusiSuma);
@@ -68,22 +71,47 @@ public class DataController {
         ObservableList<Mokejimas> payments = DataHolder.getInstance().getPayments();
         ObservableList<XYChart.Series<Number, Number>> chartData = DataHolder.getInstance().getChartData();
 
+        System.out.println(payments.size());
+
         if (payments != null) {
             dataTable.getItems().setAll(payments);
+            totalMonths = payments.size();
+
+            populateComboBoxes(totalMonths);
         }
 
         if (chartData != null) {
             mokejimoGrafikas.getData().addAll(chartData);
         }
 
-        if(DataHolder.getInstance().graphs){
+        if(DataHolder.getInstance().getGraphs()){
             mokejimoGrafikas.setVisible(true);
         }
     }
 
-    private void handleFilter(ActionEvent actionEvent) {
-        if(filterOn.isSelected()){
+    private void populateComboBoxes(int totalMonths) {
+        monthsFrom.getItems().clear();
+        monthsTo.getItems().clear();
 
+        for(int i = 1; i <= totalMonths; ++i){
+            monthsFrom.getItems().add(i);
+            monthsTo.getItems().add(i);
+        }
+    }
+
+    private void handleFilter(ActionEvent actionEvent) {
+        if(filterOn.isSelected() && monthsFrom.getSelectionModel().getSelectedItem() != null
+        && monthsTo.getSelectionModel().getSelectedItem() != null
+        && (monthsFrom.getValue() < monthsTo.getValue())){
+
+            mokejimoLentele.filterByMonthRange(monthsFrom.getValue(), monthsTo.getValue());
+            filterOn.setStyle("-fx-border-color: orange");
+            monthsTo.setStyle("-fx-border-color: black");
+            monthsFrom.setStyle("-fx-border-color: black");
+        } else{
+            filterOn.setStyle("-fx-border-color: red");
+            monthsTo.setStyle("-fx-border-color: red");
+            monthsFrom.setStyle("-fx-border-color: red");
         }
     }
 
@@ -98,6 +126,9 @@ public class DataController {
             monthsTo.setDisable(true);
             monthsTo.setVisible(false);
             monthsFrom.setVisible(false);
+
+            dataTable.setItems(mokejimoLentele.getTableData());
+            dataTable.refresh();
         }
     }
 

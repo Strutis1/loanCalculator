@@ -8,7 +8,8 @@ public final class DataHolder {
 
     private ObservableList<Mokejimas> payments;
     private ObservableList<XYChart.Series<Number, Number>> chartData;
-    boolean graphs;
+    private boolean graphs;
+    private int totalMonths;
     private final static DataHolder INSTANCE = new DataHolder();
 
     private DataHolder() {}
@@ -19,6 +20,20 @@ public final class DataHolder {
 
     public void setPayments(ObservableList<Mokejimas> payments) {
         this.payments = payments;
+    }
+
+    public void setGraphs(boolean graphs) {
+        this.graphs = graphs;
+    }
+
+    public boolean getGraphs(){return graphs;}
+
+    public int getTotalMonths() {
+        return totalMonths;
+    }
+
+    public void setTotalMonths(int totalMonths) {
+        this.totalMonths = totalMonths;
     }
 
     public ObservableList<Mokejimas> getPayments() {

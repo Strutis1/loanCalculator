@@ -7,7 +7,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 public class MokejimoLentele {
-    private final ObservableList<Mokejimas> tableData = FXCollections.observableArrayList();
+    private ObservableList<Mokejimas> tableData = FXCollections.observableArrayList();
     private final TableView<Mokejimas> dataTable;
 
     public MokejimoLentele(TableView<Mokejimas> dataTable,
@@ -27,6 +27,19 @@ public class MokejimoLentele {
         dataTable.setItems(tableData);
     }
 
+    public void filterByMonthRange(int fromMonth, int toMonth) {
+        ObservableList<Mokejimas> filteredList = FXCollections.observableArrayList();
+
+        for (Mokejimas mokejimas : tableData) {
+            if (mokejimas.getMenuo() >= fromMonth && mokejimas.getMenuo() <= toMonth) {
+                filteredList.add(mokejimas);
+            }
+        }
+        dataTable.setItems(filteredList);
+        dataTable.refresh();
+
+    }
+
     public void clearTable() {
         tableData.clear();
         dataTable.refresh();
@@ -34,6 +47,10 @@ public class MokejimoLentele {
 
     public ObservableList<Mokejimas> getTableData() {
         return tableData;
+    }
+
+    private void setTableData(ObservableList<Mokejimas> tableData) {
+        this.tableData = tableData;
     }
 
     public void setVisible(boolean visible){

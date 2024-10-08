@@ -69,6 +69,7 @@ public class CalcController {
                 (Integer.parseInt(timeYears.getText()) != 0 || Integer.parseInt(timeMonths.getText()) != 0)) {
             handleCalculate();
         }
+
     }
 
     private void handleCalculate() {
@@ -120,24 +121,24 @@ public class CalcController {
             }
 
             if (showGraphs.isSelected()) {
-                XYChart.Series<Number, Number> monthlySeries = new XYChart.Series<>();
-                monthlySeries.setName("Menesinė įmoka");
+            }                XYChart.Series<Number, Number> monthlySeries = new XYChart.Series<>();
+            monthlySeries.setName("Menesinė įmoka");
 
-                XYChart.Series<Number, Number> interestSeries = new XYChart.Series<>();
-                interestSeries.setName("Palūkanų dalis");
+            XYChart.Series<Number, Number> interestSeries = new XYChart.Series<>();
+            interestSeries.setName("Palūkanų dalis");
 
-                XYChart.Series<Number, Number> principalSeries = new XYChart.Series<>();
-                principalSeries.setName("Pagrindinė dalis");
+            XYChart.Series<Number, Number> principalSeries = new XYChart.Series<>();
+            principalSeries.setName("Pagrindinė dalis");
 
-                for (int month = 1; month <= totalMonths; month++) {
-                    monthlySeries.getData().add(new XYChart.Data<>(month, monthlyPayments[month - 1]));
-                    interestSeries.getData().add(new XYChart.Data<>(month, interestPayments[month - 1]));
-                    principalSeries.getData().add(new XYChart.Data<>(month, principalPayments[month - 1]));
-                }
-
-
-                chartData.addAll(monthlySeries, interestSeries, principalSeries);
+            for (int month = 1; month <= totalMonths; month++) {
+                monthlySeries.getData().add(new XYChart.Data<>(month, monthlyPayments[month - 1]));
+                interestSeries.getData().add(new XYChart.Data<>(month, interestPayments[month - 1]));
+                principalSeries.getData().add(new XYChart.Data<>(month, principalPayments[month - 1]));
             }
+
+
+            chartData.addAll(monthlySeries, interestSeries, principalSeries);
+
 
 //          closeCurrentStage();
             openSecondStage(payments, chartData, showGraphs.isSelected());
@@ -150,6 +151,7 @@ public class CalcController {
         DataHolder holder = DataHolder.getInstance();
         holder.setPayments(payments);
         holder.setChartData(chartData);
+        holder.setGraphs(graphs);
     }
 
     private void openSecondStage(ObservableList<Mokejimas> payments, ObservableList<XYChart.Series<Number, Number>> chartData, boolean graphs) {
