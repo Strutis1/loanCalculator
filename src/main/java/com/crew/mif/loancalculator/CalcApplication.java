@@ -14,7 +14,7 @@ public class CalcApplication extends Application {
         FXMLLoader firstLoader = new FXMLLoader(CalcApplication.class.getResource("calculator.fxml"));
         Parent firstRoot = firstLoader.load();
 
-        Scene firstScene = new Scene(firstRoot, 630, 470);
+        Scene firstScene = new Scene(firstRoot, 1150, 470);
         firstStage.setTitle("Loan Calculator");
         firstStage.setScene(firstScene);
         firstStage.show();

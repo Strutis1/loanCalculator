@@ -11,10 +11,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -47,9 +44,46 @@ public class CalcController {
     @FXML
     private CheckBox showGraphs;
 
+    @FXML
+    private TextField defermentFor;
+
+    @FXML
+    private ComboBox<Integer> defermentFrom;
+
+    @FXML
+    private Label deferForText;
+
+    @FXML
+    private CheckBox defermentOn;
+
     public void initialize() {
         clearButton.setOnAction(this::handleClear);
         calculateButton.setOnAction(this::checkInput);
+        defermentOn.setOnAction(this::handleDefer);
+
+    }
+
+    private void handleDefer(ActionEvent actionEvent) {
+        if (defermentOn.isSelected()) {
+            defermentFor.setDisable(false);
+            defermentFrom.setDisable(false);
+            defermentFor.setVisible(true);
+            defermentFrom.setVisible(true);
+            deferForText.setVisible(true);
+            deferForText.setDisable(false);
+
+            if (isPosInt(timeYears) && isPosInt(timeMonths)) {
+                int totalMonths = Integer.parseInt(timeYears.getText()) * 12 + Integer.parseInt(timeMonths.getText());
+                populateComboBox(totalMonths, defermentFrom);
+            }
+        } else {
+            defermentFor.setDisable(true);
+            defermentFrom.setDisable(true);
+            defermentFor.setVisible(false);
+            defermentFrom.setVisible(false);
+            deferForText.setVisible(false);
+            deferForText.setDisable(true);
+        }
     }
 
     @FXML
@@ -60,41 +94,95 @@ public class CalcController {
         interestRate.clear();
         anuitetoButton.setSelected(false);
         linijinisButton.setSelected(false);
+        defermentOn.setSelected(false);
+        defermentFor.setDisable(true);
+        defermentFrom.setDisable(true);
+        defermentFor.setVisible(false);
+        defermentFrom.setVisible(false);
     }
 
     @FXML
     private void checkInput(ActionEvent actionEvent) {
-        if (isPosDouble(loanAmount) && isPosInt(timeMonths) && isPosInt(timeMonths) &&
+        if (isPosDouble(loanAmount) && isPosInt(timeYears) && isPosInt(timeMonths) &&
                 (anuitetoButton.isSelected() || linijinisButton.isSelected()) &&
                 (Integer.parseInt(timeYears.getText()) != 0 || Integer.parseInt(timeMonths.getText()) != 0)) {
+
+            if (defermentOn.isSelected() && (defermentFrom.getItems() == null || !isPosInt(defermentFor)
+                    || defermentFrom.getValue() == null || defermentFrom.getValue() < 0)) {
+
+
+                return;
+            }
+            if (defermentOn.isSelected() && defermentFrom.getValue() != null && defermentFrom.getValue() >
+                    (Integer.parseInt(timeYears.getText()) * 12 + Integer.parseInt(timeMonths.getText()) - Integer.parseInt(defermentFor.getText()))) {
+
+                defermentFor.setStyle("-fx-border-color: red");
+                return;
+            }
+
+            defermentFor.setStyle("-fx-border-color: black");
+
             handleCalculate();
         }
-
     }
+
+
+    private void populateComboBox(int integers, ComboBox<Integer> combobox ) {
+        combobox.getItems().clear();
+
+        for(int i = 1; i <= integers; ++i){
+            combobox.getItems().add(i);
+        }
+    }
+
 
     private void handleCalculate() {
         try {
             double totalAmount = Double.parseDouble(loanAmount.getText());
             int totalMonths = Integer.parseInt(timeYears.getText()) * 12 + Integer.parseInt(timeMonths.getText());
             double annualInterestRate = Double.parseDouble(interestRate.getText());
+            int deferStart = (defermentOn.isSelected()) ? defermentFrom.getValue() : 0;
+            int deferDuration = (defermentOn.isSelected()) ? Integer.parseInt(defermentFor.getText()) : 0;
+            int deferEnd = deferStart + deferDuration - 1;
+
+            int allMonths = totalMonths + deferDuration;
 
 
 
-            double[] monthlyPayments = new double[totalMonths];
-            double[] interestPayments = new double[totalMonths];
-            double[] principalPayments = new double[totalMonths];
+            double[] monthlyPayments = new double[allMonths];
+            double[] interestPayments = new double[allMonths];
+            double[] principalPayments = new double[allMonths];
 
             ObservableList<Mokejimas> payments = FXCollections.observableArrayList();
             ObservableList<XYChart.Series<Number, Number>> chartData = FXCollections.observableArrayList();
 
             if (linijinisButton.isSelected()) {
                 Linear linear = new Linear(totalAmount, totalMonths, annualInterestRate);
-                double pagrindineDalisValue = linear.calculateMonthlyPayment();
 
-                for (int month = 1; month <= totalMonths; month++) {
-                    double menesineImokaValue = linear.calculatePrincipalPayment(month);
-                    double palukanuDalisValue = linear.calculateInterestPayment(month);
-                    double likusiSumaValue = linear.getRemainingAmount(month);
+                for (int month = 1; month <= allMonths; ++month) {
+                    double pagrindineDalisValue;
+                    double menesineImokaValue;
+                    double palukanuDalisValue;
+                    double likusiSumaValue;
+
+                    if (month >= deferStart && month <= deferEnd) {
+                        menesineImokaValue = 0;
+                        pagrindineDalisValue = 0;
+                        palukanuDalisValue = 0;
+                        likusiSumaValue = linear.getRemainingAmount(deferStart);
+                    }
+                    else if (month > deferEnd) {
+                        pagrindineDalisValue = linear.calculatePrincipalPayment(month - deferDuration);
+                        menesineImokaValue = linear.calculateMonthlyPayment(month - deferDuration);
+                        palukanuDalisValue = linear.calculateInterestPayment(month - deferDuration);
+                        likusiSumaValue = linear.getRemainingAmount(month - deferDuration);
+                    }
+                    else {
+                        pagrindineDalisValue = linear.calculatePrincipalPayment(month);
+                        menesineImokaValue = linear.calculateMonthlyPayment(month);
+                        palukanuDalisValue = linear.calculateInterestPayment(month);
+                        likusiSumaValue = linear.getRemainingAmount(month);
+                    }
 
                     monthlyPayments[month - 1] = menesineImokaValue;
                     interestPayments[month - 1] = palukanuDalisValue;
@@ -105,11 +193,28 @@ public class CalcController {
                 }
             } else if (anuitetoButton.isSelected()) {
                 Annuity annuity = new Annuity(totalAmount, totalMonths, annualInterestRate);
-                double menesineImokaValue = annuity.getMonthlyPayment();
-                for (int month = 1; month <= totalMonths; month++) {
-                    double pagrindineDalisValue = annuity.calculatePrincipalPayment(month);
-                    double palukanuDalisValue = annuity.calculateInterestPayment(month);
-                    double likusiSumaValue = annuity.getRemainingAmount(month);
+                for (int month = 1; month <= allMonths; ++month) {
+                    double pagrindineDalisValue;
+                    double menesineImokaValue;
+                    double palukanuDalisValue;
+                    double likusiSumaValue;
+
+                    if (month >= deferStart && month <= deferEnd) {
+                        menesineImokaValue = 0;
+                        pagrindineDalisValue = 0;
+                        palukanuDalisValue = 0;
+                        likusiSumaValue = annuity.getRemainingAmount(deferStart);
+                    } else if (month > deferEnd) {
+                        pagrindineDalisValue = annuity.calculatePrincipalPayment(month - deferDuration);
+                        menesineImokaValue = annuity.calculateMonthlyPayment(month - deferDuration);
+                        palukanuDalisValue = annuity.calculateInterestPayment(month - deferDuration);
+                        likusiSumaValue = annuity.getRemainingAmount(month - deferDuration);
+                    } else {
+                        pagrindineDalisValue = annuity.calculatePrincipalPayment(month);
+                        menesineImokaValue = annuity.calculateMonthlyPayment(month);
+                        palukanuDalisValue = annuity.calculateInterestPayment(month);
+                        likusiSumaValue = annuity.getRemainingAmount(month);
+                    }
 
                     monthlyPayments[month - 1] = menesineImokaValue;
                     interestPayments[month - 1] = palukanuDalisValue;
@@ -119,6 +224,7 @@ public class CalcController {
                     payments.add(payment);
                 }
             }
+
 
             if (showGraphs.isSelected()) {
             }                XYChart.Series<Number, Number> monthlySeries = new XYChart.Series<>();
@@ -142,6 +248,7 @@ public class CalcController {
 
 //          closeCurrentStage();
             openSecondStage(payments, chartData, showGraphs.isSelected());
+
         } catch (NumberFormatException e) {
             System.out.println("Invalid input. Please enter valid numbers for loan amount, years, months, and interest rate.");
         }
@@ -164,7 +271,6 @@ public class CalcController {
             Stage secondStage = new Stage();
             Scene secondScene = new Scene(secondRoot, 1000, 750);
 
-            DataController dataController = secondLoader.getController();
 
             secondStage.initModality(Modality.APPLICATION_MODAL);
             secondStage.setTitle("Mokėjimų Lentelė");
@@ -179,6 +285,27 @@ public class CalcController {
     //    private void closeCurrentStage() {
 //        Stage currentStage = (Stage) calculateButton.getScene().getWindow();
 //        currentStage.close();
+//    }
+
+
+//    private boolean checkValidTerm(TextField textField){
+//        try {
+//            int term;
+//            if (textField.getText() == null || textField.getText().trim().isEmpty()) {
+//                textField.setStyle("-fx-border-color: red");
+//                return false;
+//            } else {
+//                term = Integer.parseInt(textField.getText());
+//            }
+//            if (term > Integer.parseInt(timeYears.getText()) * 12 + Integer.parseInt(timeMonths.getText()) || term < 0) {
+//                throw new IllegalArgumentException("Invalid deferment term");
+//
+//            } else {
+//                return true;
+//            }
+//        }catch(IllegalArgumentException e){
+//            return false;
+//        }
 //    }
 
     private boolean isPosInt(TextField textField) {

@@ -5,11 +5,11 @@ public class Annuity extends Method {
 
     public Annuity(double totalAmount, int totalMonths, double annualInterestRate) {
         super(totalAmount, totalMonths, annualInterestRate);
-        this.monthlyPayment = calculateMonthlyPayment();
+        this.monthlyPayment = calculateMonthlyPayment(0);
     }
 
     @Override
-    public double calculateMonthlyPayment() {
+    public double calculateMonthlyPayment(int month) {
         double monthlyRate = getMonthlyInterestRate();
         return totalAmount * (monthlyRate * Math.pow(1 + monthlyRate, totalMonths))
                 / (Math.pow(1 + monthlyRate, totalMonths) - 1);

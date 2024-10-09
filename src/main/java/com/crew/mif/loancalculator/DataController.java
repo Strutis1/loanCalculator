@@ -71,7 +71,6 @@ public class DataController {
         ObservableList<Mokejimas> payments = DataHolder.getInstance().getPayments();
         ObservableList<XYChart.Series<Number, Number>> chartData = DataHolder.getInstance().getChartData();
 
-        System.out.println(payments.size());
 
         if (payments != null) {
             dataTable.getItems().setAll(payments);

@@ -12,7 +12,7 @@ public abstract class Method {
         this.annualInterestRate = annualInterestRate;
     }
 
-    public abstract double calculateMonthlyPayment();
+    public abstract double calculateMonthlyPayment(int month);
 
     public abstract double calculateInterestPayment(int month);
 

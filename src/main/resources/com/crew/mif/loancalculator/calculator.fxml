@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.TextField?>
@@ -9,10 +11,11 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane prefHeight="467.0" prefWidth="630.0" style="-fx-background-color: BLACK;" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.crew.mif.loancalculator.CalcController">
+<AnchorPane prefHeight="467.0" prefWidth="1158.0" style="-fx-background-color: BLACK;" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.crew.mif.loancalculator.CalcController">
     <children>
         <BorderPane layoutX="-73.0" prefHeight="67.0" prefWidth="1220.0" style="-fx-background-color: ORANGE;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <center>
@@ -34,8 +37,8 @@
                 <Font name="Franklin Gothic Heavy" size="18.0" />
             </font>
         </Label>
-        <TextField fx:id="timeYears" layoutX="248.0" layoutY="173.0" prefHeight="33.0" prefWidth="74.0" promptText="YEARS" style="-fx-background-color: WHITE;" />
-        <TextField fx:id="timeMonths" layoutX="350.0" layoutY="173.0" prefHeight="33.0" prefWidth="74.0" promptText="MONTHS" style="-fx-background-color: WHITE;" />
+        <TextField fx:id="timeYears" layoutX="248.0" layoutY="173.0" prefHeight="33.0" prefWidth="74.0" promptText="METAI" style="-fx-background-color: WHITE;" />
+        <TextField fx:id="timeMonths" layoutX="350.0" layoutY="173.0" prefHeight="33.0" prefWidth="74.0" promptText="MĖNESIAI" style="-fx-background-color: WHITE;" />
       <Label layoutX="26.0" layoutY="239.0" prefHeight="36.0" prefWidth="214.0" style="-fx-text-fill: orange;" text="METINIS PROCENTAS">
          <font>
             <Font name="Franklin Gothic Heavy" size="18.0" />
@@ -68,5 +71,32 @@
 
         <Button fx:id="calculateButton" layoutX="254.0" layoutY="390.0" mnemonicParsing="false" prefHeight="51.0" prefWidth="133.0" style="-fx-background-color: orange; -fx-font-family: Verdana; -fx-font-weight: bold;" text="APSKAIČIUOTI" />
         <Button fx:id="clearButton" layoutX="429.0" layoutY="390.0" mnemonicParsing="false" prefHeight="51.0" prefWidth="133.0" style="-fx-background-color: orange; -fx-font-family: Verdana; -fx-font-weight: bold;" text="ANULIUOTI" />
+      <VBox layoutX="806.0" layoutY="106.0" prefHeight="228.0" prefWidth="332.0" style="-fx-alignment: center;">
+         <children>
+            <CheckBox fx:id="defermentOn" mnemonicParsing="false" prefHeight="25.0" prefWidth="177.0" style="-fx-text-fill: orange;" text="Atidėjimas">
+               <font>
+                  <Font name="Franklin Gothic Heavy" size="18.0" />
+               </font>
+               <VBox.margin>
+                  <Insets bottom="20.0" />
+               </VBox.margin>
+            </CheckBox>
+            <ComboBox fx:id="defermentFrom" disable="true" prefWidth="150.0" promptText="from" visible="false">
+               <VBox.margin>
+                  <Insets bottom="20.0" />
+               </VBox.margin>
+            </ComboBox>
+            <TextField fx:id="defermentFor" disable="true" prefHeight="34.0" prefWidth="102.0" promptText="LAIKOTARPIS (MĖN.)" style="-fx-background-color: white;" visible="false">
+               <VBox.margin>
+                  <Insets bottom="20.0" left="100.0" right="100.0" />
+               </VBox.margin>
+            </TextField>
+         </children>
+      </VBox>
+      <Label fx:id="deferForText" disable="true" layoutX="653.0" layoutY="239.0" prefHeight="36.0" prefWidth="221.0" style="-fx-text-fill: ORANGE;" text="ATIDĖJIMO LAIKOTARPIS:" visible="false">
+         <font>
+            <Font name="Franklin Gothic Heavy" size="18.0" />
+         </font>
+      </Label>
     </children>
 </AnchorPane>
