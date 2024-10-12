@@ -5,7 +5,6 @@ public abstract class Method {
     protected int totalMonths;
     protected double annualInterestRate;
 
-    // Constructor for initializing common fields
     public Method(double totalAmount, int totalMonths, double annualInterestRate) {
         this.totalAmount = totalAmount;
         this.totalMonths = totalMonths;
@@ -24,4 +23,5 @@ public abstract class Method {
     }
 
     public abstract double getRemainingAmount(int month);
+
 }

@@ -25,7 +25,7 @@ public final class DataHolder {
         this.graphs = graphs;
     }
 
-    public boolean getGraphs(){return graphs; };
+    public boolean getGraphs(){ return graphs; };
 
     public ObservableList<Mokejimas> getPayments() {
         return this.payments;

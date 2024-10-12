@@ -1,11 +1,9 @@
 package calculations;
 
 public class Annuity extends Method {
-    private final double monthlyPayment;
 
     public Annuity(double totalAmount, int totalMonths, double annualInterestRate) {
         super(totalAmount, totalMonths, annualInterestRate);
-        this.monthlyPayment = calculateMonthlyPayment(0);
     }
 
     @Override
@@ -32,10 +30,8 @@ public class Annuity extends Method {
     @Override
     public double calculatePrincipalPayment(int month) {
         double interestPayment = calculateInterestPayment(month);
+        double monthlyPayment = calculateMonthlyPayment(0);
         return monthlyPayment - interestPayment;
     }
 
-    public double getMonthlyPayment(){
-        return monthlyPayment;
-    }
 }

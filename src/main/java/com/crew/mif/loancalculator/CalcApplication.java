@@ -10,7 +10,7 @@ public class CalcApplication extends Application {
 
     @Override
     public void start(Stage firstStage) throws Exception {
-        // Load the FXML file
+
         FXMLLoader firstLoader = new FXMLLoader(CalcApplication.class.getResource("calculator.fxml"));
         Parent firstRoot = firstLoader.load();
 

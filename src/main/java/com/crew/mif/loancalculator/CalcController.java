@@ -1,7 +1,6 @@
 package com.crew.mif.loancalculator;
 
-import calculations.Annuity;
-import calculations.Linear;
+import calculations.*;
 import data.Mokejimas;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -109,13 +108,11 @@ public class CalcController {
 
             if (defermentOn.isSelected() && (defermentFrom.getItems() == null || !isPosInt(defermentFor)
                     || defermentFrom.getValue() == null || defermentFrom.getValue() < 0)) {
-
-
                 return;
             }
+
             if (defermentOn.isSelected() && defermentFrom.getValue() != null && defermentFrom.getValue() >
                     (Integer.parseInt(timeYears.getText()) * 12 + Integer.parseInt(timeMonths.getText()) - Integer.parseInt(defermentFor.getText()))) {
-
                 defermentFor.setStyle("-fx-border-color: red");
                 return;
             }
@@ -145,9 +142,8 @@ public class CalcController {
             int deferDuration = (defermentOn.isSelected()) ? Integer.parseInt(defermentFor.getText()) : 0;
             int deferEnd = deferStart + deferDuration - 1;
 
+
             int allMonths = totalMonths + deferDuration;
-
-
 
             double[] monthlyPayments = new double[allMonths];
             double[] interestPayments = new double[allMonths];
@@ -156,103 +152,57 @@ public class CalcController {
             ObservableList<Mokejimas> payments = FXCollections.observableArrayList();
             ObservableList<XYChart.Series<Number, Number>> chartData = FXCollections.observableArrayList();
 
-            if (linijinisButton.isSelected()) {
-                Linear linear = new Linear(totalAmount, totalMonths, annualInterestRate);
-
-                for (int month = 1; month <= allMonths; ++month) {
-                    double pagrindineDalisValue;
-                    double menesineImokaValue;
-                    double palukanuDalisValue;
-                    double likusiSumaValue;
-
-                    if (month >= deferStart && month <= deferEnd) {
-                        menesineImokaValue = 0;
-                        pagrindineDalisValue = 0;
-                        palukanuDalisValue = 0;
-                        likusiSumaValue = linear.getRemainingAmount(deferStart);
-                    }
-                    else if (month > deferEnd) {
-                        pagrindineDalisValue = linear.calculatePrincipalPayment(month - deferDuration);
-                        menesineImokaValue = linear.calculateMonthlyPayment(month - deferDuration);
-                        palukanuDalisValue = linear.calculateInterestPayment(month - deferDuration);
-                        likusiSumaValue = linear.getRemainingAmount(month - deferDuration);
-                    }
-                    else {
-                        pagrindineDalisValue = linear.calculatePrincipalPayment(month);
-                        menesineImokaValue = linear.calculateMonthlyPayment(month);
-                        palukanuDalisValue = linear.calculateInterestPayment(month);
-                        likusiSumaValue = linear.getRemainingAmount(month);
-                    }
-
-                    monthlyPayments[month - 1] = menesineImokaValue;
-                    interestPayments[month - 1] = palukanuDalisValue;
-                    principalPayments[month - 1] = pagrindineDalisValue;
-
-                    Mokejimas payment = new Mokejimas(month, menesineImokaValue, pagrindineDalisValue, palukanuDalisValue, likusiSumaValue);
-                    payments.add(payment);
-                }
-            } else if (anuitetoButton.isSelected()) {
-                Annuity annuity = new Annuity(totalAmount, totalMonths, annualInterestRate);
-                for (int month = 1; month <= allMonths; ++month) {
-                    double pagrindineDalisValue;
-                    double menesineImokaValue;
-                    double palukanuDalisValue;
-                    double likusiSumaValue;
-
-                    if (month >= deferStart && month <= deferEnd) {
-                        menesineImokaValue = 0;
-                        pagrindineDalisValue = 0;
-                        palukanuDalisValue = 0;
-                        likusiSumaValue = annuity.getRemainingAmount(deferStart);
-                    } else if (month > deferEnd) {
-                        pagrindineDalisValue = annuity.calculatePrincipalPayment(month - deferDuration);
-                        menesineImokaValue = annuity.calculateMonthlyPayment(month - deferDuration);
-                        palukanuDalisValue = annuity.calculateInterestPayment(month - deferDuration);
-                        likusiSumaValue = annuity.getRemainingAmount(month - deferDuration);
-                    } else {
-                        pagrindineDalisValue = annuity.calculatePrincipalPayment(month);
-                        menesineImokaValue = annuity.calculateMonthlyPayment(month);
-                        palukanuDalisValue = annuity.calculateInterestPayment(month);
-                        likusiSumaValue = annuity.getRemainingAmount(month);
-                    }
-
-                    monthlyPayments[month - 1] = menesineImokaValue;
-                    interestPayments[month - 1] = palukanuDalisValue;
-                    principalPayments[month - 1] = pagrindineDalisValue;
-
-                    Mokejimas payment = new Mokejimas(month, menesineImokaValue, pagrindineDalisValue, palukanuDalisValue, likusiSumaValue);
-                    payments.add(payment);
-                }
+            Method method = MethodFactory.methodCreator(linijinisButton.isSelected(), totalAmount, totalMonths, annualInterestRate);
+            if (defermentOn.isSelected()) {
+                method = new DefermentDecorator(method, deferStart, deferEnd, deferDuration);
             }
+            for (int month = 1; month <= allMonths; ++month) {
+                double pagrindineDalisValue;
+                double menesineImokaValue;
+                double palukanuDalisValue;
+                double likusiSumaValue;
 
+                pagrindineDalisValue = method.calculatePrincipalPayment(month);
+                menesineImokaValue = method.calculateMonthlyPayment(month);
+                palukanuDalisValue = method.calculateInterestPayment(month);
+                likusiSumaValue = method.getRemainingAmount(month);
+
+
+                monthlyPayments[month - 1] = menesineImokaValue;
+                interestPayments[month - 1] = palukanuDalisValue;
+                principalPayments[month - 1] = pagrindineDalisValue;
+
+                Mokejimas payment = new Mokejimas(month, menesineImokaValue, pagrindineDalisValue, palukanuDalisValue, likusiSumaValue);
+                payments.add(payment);
+            }
 
             if (showGraphs.isSelected()) {
-            }                XYChart.Series<Number, Number> monthlySeries = new XYChart.Series<>();
-            monthlySeries.setName("Menesinė įmoka");
+                XYChart.Series<Number, Number> monthlySeries = new XYChart.Series<>();
+                monthlySeries.setName("Menesinė įmoka");
 
-            XYChart.Series<Number, Number> interestSeries = new XYChart.Series<>();
-            interestSeries.setName("Palūkanų dalis");
+                XYChart.Series<Number, Number> interestSeries = new XYChart.Series<>();
+                interestSeries.setName("Palūkanų dalis");
 
-            XYChart.Series<Number, Number> principalSeries = new XYChart.Series<>();
-            principalSeries.setName("Pagrindinė dalis");
+                XYChart.Series<Number, Number> principalSeries = new XYChart.Series<>();
+                principalSeries.setName("Pagrindinė dalis");
 
-            for (int month = 1; month <= totalMonths; month++) {
-                monthlySeries.getData().add(new XYChart.Data<>(month, monthlyPayments[month - 1]));
-                interestSeries.getData().add(new XYChart.Data<>(month, interestPayments[month - 1]));
-                principalSeries.getData().add(new XYChart.Data<>(month, principalPayments[month - 1]));
+                for (int month = 1; month <= totalMonths; month++) {
+                    monthlySeries.getData().add(new XYChart.Data<>(month, monthlyPayments[month - 1]));
+                    interestSeries.getData().add(new XYChart.Data<>(month, interestPayments[month - 1]));
+                    principalSeries.getData().add(new XYChart.Data<>(month, principalPayments[month - 1]));
+                }
+
+                chartData.addAll(monthlySeries, interestSeries, principalSeries);
             }
 
-
-            chartData.addAll(monthlySeries, interestSeries, principalSeries);
-
-
-//          closeCurrentStage();
+//            closeCurrentStage();
             openSecondStage(payments, chartData, showGraphs.isSelected());
 
         } catch (NumberFormatException e) {
             System.out.println("Invalid input. Please enter valid numbers for loan amount, years, months, and interest rate.");
         }
     }
+
 
     private void sendData(ObservableList<Mokejimas> payments, ObservableList<XYChart.Series<Number, Number>> chartData, boolean graphs) {
         DataHolder holder = DataHolder.getInstance();
@@ -288,25 +238,6 @@ public class CalcController {
 //    }
 
 
-//    private boolean checkValidTerm(TextField textField){
-//        try {
-//            int term;
-//            if (textField.getText() == null || textField.getText().trim().isEmpty()) {
-//                textField.setStyle("-fx-border-color: red");
-//                return false;
-//            } else {
-//                term = Integer.parseInt(textField.getText());
-//            }
-//            if (term > Integer.parseInt(timeYears.getText()) * 12 + Integer.parseInt(timeMonths.getText()) || term < 0) {
-//                throw new IllegalArgumentException("Invalid deferment term");
-//
-//            } else {
-//                return true;
-//            }
-//        }catch(IllegalArgumentException e){
-//            return false;
-//        }
-//    }
 
     private boolean isPosInt(TextField textField) {
         try {
