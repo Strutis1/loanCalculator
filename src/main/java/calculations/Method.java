@@ -1,3 +1,6 @@
+//jau buvo naudojamas strategy elgsenos modelis
+
+
 package calculations;
 
 public abstract class Method {

@@ -76,7 +76,8 @@ public class DataController {
             dataTable.getItems().setAll(payments);
             totalMonths = payments.size();
 
-            populateComboBoxes(totalMonths);
+            Utility.populateComboBox(totalMonths, monthsFrom);
+            Utility.populateComboBox(totalMonths, monthsTo);
         }
 
         if (chartData != null) {
@@ -85,16 +86,6 @@ public class DataController {
 
         if(DataHolder.getInstance().getGraphs()){
             mokejimoGrafikas.setVisible(true);
-        }
-    }
-
-    private void populateComboBoxes(int totalMonths) {
-        monthsFrom.getItems().clear();
-        monthsTo.getItems().clear();
-
-        for(int i = 1; i <= totalMonths; ++i){
-            monthsFrom.getItems().add(i);
-            monthsTo.getItems().add(i);
         }
     }
 

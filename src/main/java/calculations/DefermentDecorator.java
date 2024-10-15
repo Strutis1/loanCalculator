@@ -1,3 +1,5 @@
+//naudojame decorator strukturini modeli
+
 package calculations;
 
 public class DefermentDecorator extends Method {
