@@ -9,6 +9,7 @@ public final class DataHolder {
     private ObservableList<Mokejimas> payments;
     private ObservableList<XYChart.Series<Number, Number>> chartData;
     private boolean graphs;
+
     private final static DataHolder INSTANCE = new DataHolder();
 
     private DataHolder() {}
